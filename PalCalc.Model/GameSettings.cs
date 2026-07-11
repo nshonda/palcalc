@@ -30,6 +30,10 @@ namespace PalCalc.Model
 
         public bool MultipleIncubators { get; set; } = true;
 
+        // Number of eggs produced per breeding cycle. The Vegetable Cake (Palworld 1.0) yields 2 eggs
+        // per cycle instead of 1, halving the breeding-farm time to obtain a given number of eggs.
+        public int EggsPerBreeding { get; set; } = 1;
+
         public int PlayerPartySize { get; set; } = 5;
 
         public Dictionary<LocationType, int> LocationTypeGridWidths { get; set; } = new()
