@@ -38,8 +38,12 @@ namespace PalCalc.Solver.Probabilities
         /// Should be used repeatedly to calculate probabilities for all possible counts of passive skills (max 4)
         /// </remarks>
         /// 
-        public static float ProbabilityInheritedTargetPassives(List<PassiveSkill> parentPassives, List<PassiveSkill> desiredParentPassives, int numFinalPassives)
+        public static float ProbabilityInheritedTargetPassives(List<PassiveSkill> parentPassives, List<PassiveSkill> desiredParentPassives, int numFinalPassives, IReadOnlyDictionary<int, float> passiveCountProbability = null)
         {
+            // probability of inheriting exactly N passives from the parent pool. Defaults to the game's
+            // base distribution; the Special Cake (Palworld 1.0) overrides this to a deterministic 4.
+            passiveCountProbability ??= GameConstants.PassiveProbabilityDirect;
+
 #if DEBUG && DEBUG_CHECKS
             if (parentPassives.Count != parentPassives.Distinct().Count()) Debugger.Break();
             if (desiredParentPassives.Count != desiredParentPassives.Distinct().Count()) Debugger.Break();
@@ -86,12 +90,12 @@ namespace PalCalc.Solver.Probabilities
                 if (desiredParentPassives.Count == 0)
                 {
                     // just the chance of getting this number of passives from parents
-                    probabilityGotRequiredFromParent = GameConstants.PassiveProbabilityDirect[numInheritedFromParent];
+                    probabilityGotRequiredFromParent = passiveCountProbability[numInheritedFromParent];
                 }
                 else if (numIrrelevantFromParent == 0)
                 {
                     // chance of getting exactly the required passives
-                    probabilityGotRequiredFromParent = GameConstants.PassiveProbabilityDirect[numInheritedFromParent] / Choose(parentPassives.Count, desiredParentPassives.Count);
+                    probabilityGotRequiredFromParent = passiveCountProbability[numInheritedFromParent] / Choose(parentPassives.Count, desiredParentPassives.Count);
                 }
                 else
                 {
@@ -115,7 +119,7 @@ namespace PalCalc.Solver.Probabilities
                     var probabilityCombinationWithDesiredPassives =
                         numCombinationsWithIrrelevantPassive / numCombinationsWithAnyPassives;
 
-                    probabilityGotRequiredFromParent = probabilityCombinationWithDesiredPassives * GameConstants.PassiveProbabilityDirect[numInheritedFromParent];
+                    probabilityGotRequiredFromParent = probabilityCombinationWithDesiredPassives * passiveCountProbability[numInheritedFromParent];
                 }
 
 #if DEBUG && DEBUG_CHECKS

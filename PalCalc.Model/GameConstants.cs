@@ -86,6 +86,18 @@ namespace PalCalc.Model
             { 0, 0.0f },
         };
 
+        // Special Cake (Palworld 1.0, PassiveInheritCountOverride = 4) forces the number of passives
+        // inherited from the parent pool to the maximum of 4, instead of the default 40/30/20/10
+        // distribution over 1..4. Datamined from DA_BreedingItemEffectData (Cake05).
+        public static readonly IReadOnlyDictionary<int, float> PassiveProbabilityDirectSpecialCake = new Dictionary<int, float>()
+        {
+            { 4, 1.0f },
+            { 3, 0.0f },
+            { 2, 0.0f },
+            { 1, 0.0f },
+            { 0, 0.0f },
+        };
+
         // probability of getting N passives from parent pool without any random passives
         public static readonly IReadOnlyDictionary<int, float> PassiveProbabilityNoRandom = new Dictionary<int, float>()
         {
