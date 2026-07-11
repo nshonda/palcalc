@@ -34,7 +34,7 @@ namespace PalCalc.UI
 
         protected override void OnStartup(StartupEventArgs e)
         {
-#if RELEASE
+#if HANDLE_ERRORS
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 #endif
 
@@ -45,7 +45,7 @@ namespace PalCalc.UI
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .PalCommon()
-#if RELEASE
+#if HANDLE_ERRORS
                 .WriteTo.File(Logging.MessageFormat, $"{LogFolder}/log.txt", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
 #endif
                 .CreateLogger();
