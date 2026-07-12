@@ -424,7 +424,11 @@ namespace PalCalc.Solver
                             float initialProbability = probabilityForUpToNumPassives;
 #endif
 
-                            probabilityForUpToNumPassives += Probabilities.Passives.ProbabilityInheritedTargetPassives(parentPassives, targetPassives, numFinalPassives);
+                            probabilityForUpToNumPassives += Probabilities.Passives.ProbabilityInheritedTargetPassives(
+                                parentPassives, targetPassives, numFinalPassives,
+                                settings.GameSettings.ActiveCake == BreedingCake.SpecialCake
+                                    ? GameConstants.PassiveProbabilityDirectSpecialCake
+                                    : GameConstants.PassiveProbabilityDirect);
 
                             if (probabilityForUpToNumPassives <= 0)
                                 continue;

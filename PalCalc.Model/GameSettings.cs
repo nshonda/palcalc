@@ -30,6 +30,14 @@ namespace PalCalc.Model
 
         public bool MultipleIncubators { get; set; } = true;
 
+        // The cake placed in the breeding farm (Palworld 1.0). Mutually exclusive; drives the cake effects below.
+        public BreedingCake ActiveCake { get; set; } = BreedingCake.None;
+
+        // Number of eggs produced per breeding cycle. The Vegetable Cake yields 2 eggs per cycle instead of 1,
+        // halving the breeding-farm time to obtain a given number of eggs.
+        [JsonIgnore]
+        public int EggsPerBreeding => ActiveCake == BreedingCake.VegetableCake ? 2 : 1;
+
         public int PlayerPartySize { get; set; } = 5;
 
         public Dictionary<LocationType, int> LocationTypeGridWidths { get; set; } = new()
