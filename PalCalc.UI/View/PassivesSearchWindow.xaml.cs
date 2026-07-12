@@ -64,9 +64,10 @@ namespace PalCalc.UI.View
 
         public PassivesSearchWindow()
         {
-            InitializeComponent();
-
-            var view = new ListCollectionView((System.Collections.IList)PassiveSkillViewModel.All)
+            // Build the view BEFORE InitializeComponent: the window's DataContext=self binding resolves the
+            // ItemsSource during InitializeComponent, so DisplayedOptions must already be set (it has no
+            // change notification).
+            DisplayedOptions = new ListCollectionView((System.Collections.IList)PassiveSkillViewModel.All)
             {
                 Filter = o =>
                 {
@@ -76,7 +77,8 @@ namespace PalCalc.UI.View
                     return textMatches && statMatches;
                 }
             };
-            DisplayedOptions = view;
+
+            InitializeComponent();
 
             Loaded += (_, _) => m_TextBox.Focus();
         }
