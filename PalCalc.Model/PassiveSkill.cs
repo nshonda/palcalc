@@ -49,6 +49,10 @@ namespace PalCalc.Model
 
         public List<PassiveSkillEffect> TrackedEffects { get; set; } = [];
 
+        // The full set of structured per-stat effects (Attack/Defense/element/etc.) for display.
+        // Distinct from TrackedEffects, which is the narrow subset the solver consumes.
+        public List<PassiveSkillEffect> Effects { get; set; } = [];
+
         public override string ToString() => Name;
 
         public override bool Equals(object obj) => (obj as PassiveSkill)?.InternalName == InternalName;
