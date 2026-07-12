@@ -5,6 +5,7 @@ using PalCalc.Model;
 using PalCalc.UI.ViewModel.Mapped;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,14 +23,16 @@ namespace PalCalc.UI.View
     [ObservableObject]
     public partial class PassivesSearchWindow : AdonisWindow
     {
-        [NotifyPropertyChangedFor(nameof(DisplayedOptions))]
         [ObservableProperty]
         private string searchText;
 
         // The stat filter — when set, only passives that affect the chosen stat are shown.
-        [NotifyPropertyChangedFor(nameof(DisplayedOptions))]
         [ObservableProperty]
         private StatFilterOption selectedStatFilter;
+
+        // Re-apply the filter on a stable view (keeps any column sort the user applied).
+        partial void OnSearchTextChanged(string value) => DisplayedOptions?.Refresh();
+        partial void OnSelectedStatFilterChanged(StatFilterOption value) => DisplayedOptions?.Refresh();
 
         // Every effect type present across passives, grouped by category, with an "All stats" entry first.
         public List<StatFilterOption> StatFilterOptions { get; } = BuildStatFilterOptions();
@@ -55,19 +58,25 @@ namespace PalCalc.UI.View
 
         private bool Matches(string text) => text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || Fuzz.WeightedRatio(SearchText.ToLower(), text.ToLower()) > 70;
 
-        public List<PassiveSkillViewModel> DisplayedOptions =>
-            PassiveSkillViewModel.All.Where(p =>
-                (string.IsNullOrEmpty(SearchText) ||
-                 Matches(p.Name.Value) ||
-                 Matches(p.Description.Value))
-                &&
-                (SelectedStatFilter?.InternalName == null ||
-                 p.ModelObject.Effects.Any(e => e.InternalName == SelectedStatFilter.InternalName))
-            ).ToList();
+        // A stable view over all passives — GridViewSort applies SortDescriptions to this view, so a
+        // column sort persists (unlike a recomputed list). Search + stat filter run through its predicate.
+        public ICollectionView DisplayedOptions { get; }
 
         public PassivesSearchWindow()
         {
             InitializeComponent();
+
+            var view = new ListCollectionView((System.Collections.IList)PassiveSkillViewModel.All)
+            {
+                Filter = o =>
+                {
+                    var p = (PassiveSkillViewModel)o;
+                    var textMatches = string.IsNullOrEmpty(SearchText) || Matches(p.Name.Value) || Matches(p.Description.Value);
+                    var statMatches = SelectedStatFilter?.InternalName == null || p.ModelObject.Effects.Any(e => e.InternalName == SelectedStatFilter.InternalName);
+                    return textMatches && statMatches;
+                }
+            };
+            DisplayedOptions = view;
 
             Loaded += (_, _) => m_TextBox.Focus();
         }

@@ -139,6 +139,14 @@ namespace PalCalc.UI.ViewModel.Mapped
             MoveSpeedValue = PrimaryValue("MoveSpeed");
             WeightValue = PrimaryValue("MaxInventoryWeight");
 
+            // offensive element damage (ElementBoost_*) — its own column, since it's an "attack" of a
+            // specific element that the raw Attack column doesn't capture.
+            var elementEffect = effects.FirstOrDefault(e => e.InternalName != null && e.InternalName.StartsWith("ElementBoost_") && IsSelf(e.TargetType));
+            ElementValue = elementEffect?.EffectStrength;
+            ElementDisplay = elementEffect == null
+                ? null
+                : $"{elementEffect.InternalName.Substring("ElementBoost_".Length)} {(elementEffect.EffectStrength >= 0 ? "+" : "")}{elementEffect.EffectStrength:0.#}";
+
             if (passive is RandomPassiveSkill) hash = random.Next();
             else hash = passive.GetHashCode();
         }
@@ -154,7 +162,15 @@ namespace PalCalc.UI.ViewModel.Mapped
         public float? MoveSpeedValue { get; }
         public float? WeightValue { get; }
 
-        public ImageSource RankIcon => PassiveSkillIcon.Images[ModelObject.Rank];
+        // element damage: sortable numeric value + a "{Element} +N" label for display
+        public float? ElementValue { get; }
+        public string ElementDisplay { get; }
+
+        // World Tree passives (1.0) use Rank 5, which has no dedicated icon — clamp to the nearest known
+        // rank so they still get a badge instead of rendering blank.
+        public ImageSource RankIcon => PassiveSkillIcon.Images.TryGetValue(ModelObject.Rank, out var img)
+            ? img
+            : PassiveSkillIcon.Images[Math.Clamp(ModelObject.Rank, -3, 4)];
 
         public int Rank => ModelObject.Rank;
 

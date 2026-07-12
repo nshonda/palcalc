@@ -78,6 +78,7 @@
                         </GridViewColumn>
 
                         <GridViewColumn Header="Atk"  util:GridViewSort.PropertyName="AttackValue"    DisplayMemberBinding="{Binding AttackValue}"    Width="44" />
+                        <GridViewColumn Header="Elem" util:GridViewSort.PropertyName="ElementValue"   DisplayMemberBinding="{Binding ElementDisplay}" Width="70" />
                         <GridViewColumn Header="Def"  util:GridViewSort.PropertyName="DefenseValue"   DisplayMemberBinding="{Binding DefenseValue}"   Width="44" />
                         <GridViewColumn Header="Work" util:GridViewSort.PropertyName="WorkSpeedValue" DisplayMemberBinding="{Binding WorkSpeedValue}" Width="48" />
                         <GridViewColumn Header="Spd"  util:GridViewSort.PropertyName="MoveSpeedValue" DisplayMemberBinding="{Binding MoveSpeedValue}" Width="44" />
