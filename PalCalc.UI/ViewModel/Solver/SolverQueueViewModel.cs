@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using Windows.ApplicationModel.Contacts;
 
 namespace PalCalc.UI.ViewModel.Solver
 {

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Networking.Sockets;
 
 namespace PalCalc.UI.Localization
 {

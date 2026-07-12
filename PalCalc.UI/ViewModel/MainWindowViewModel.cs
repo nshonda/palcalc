@@ -142,8 +142,21 @@ namespace PalCalc.UI.ViewModel
                 resumeSolverCommand: ResumeSolverCommand
             );
             SolverControls.CopyFrom(settings.SolverSettings);
+            // Only persist when a property that actually feeds AsModel changes. CurrentJob/CurrentTarget and the
+            // Can* computed flags fire on navigation and solver state transitions but are not persisted, so
+            // saving on them re-serialized the whole settings file to disk (on the UI thread) for no effect.
             SolverControls.PropertyChanged += (s, e) =>
             {
+                switch (e.PropertyName)
+                {
+                    case nameof(SolverControls.CurrentJob):
+                    case nameof(SolverControls.CurrentTarget):
+                    case nameof(SolverControls.CanRunSolver):
+                    case nameof(SolverControls.CanCancelSolver):
+                    case nameof(SolverControls.CanEditSettings):
+                        return;
+                }
+
                 settings.SolverSettings = SolverControls.AsModel;
                 Storage.SaveAppSettings(settings);
             };
