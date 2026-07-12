@@ -28,7 +28,12 @@
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="10,10">
             <TextBlock DockPanel.Dock="Left" Text="{itl:LocalizedText Code=LC_TRAITS_SEARCH_SEARCH}" Margin="0,0,8,0" VerticalAlignment="Center" />
-            
+
+            <ComboBox DockPanel.Dock="Right" Width="220" Margin="8,0,0,0"
+                      ItemsSource="{Binding StatFilterOptions}"
+                      SelectedItem="{Binding SelectedStatFilter}"
+                      DisplayMemberPath="DisplayLabel" />
+
             <TextBox x:Name="m_TextBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
         </DockPanel>
 
@@ -72,8 +77,14 @@
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
 
+                        <GridViewColumn Header="Atk"  util:GridViewSort.PropertyName="AttackValue"    DisplayMemberBinding="{Binding AttackValue}"    Width="44" />
+                        <GridViewColumn Header="Def"  util:GridViewSort.PropertyName="DefenseValue"   DisplayMemberBinding="{Binding DefenseValue}"   Width="44" />
+                        <GridViewColumn Header="Work" util:GridViewSort.PropertyName="WorkSpeedValue" DisplayMemberBinding="{Binding WorkSpeedValue}" Width="48" />
+                        <GridViewColumn Header="Spd"  util:GridViewSort.PropertyName="MoveSpeedValue" DisplayMemberBinding="{Binding MoveSpeedValue}" Width="44" />
+                        <GridViewColumn Header="Wt"   util:GridViewSort.PropertyName="WeightValue"    DisplayMemberBinding="{Binding WeightValue}"    Width="44" />
+
                         <GridViewColumn Header="{itl:LocalizedText Code=LC_TRAITS_SEARCH_DESCRIPTION}"
-                                        Width="500"
+                                        Width="360"
                                         util:GridViewSort.PropertyName="Description"
                                         >
                             <GridViewColumn.CellTemplate>
