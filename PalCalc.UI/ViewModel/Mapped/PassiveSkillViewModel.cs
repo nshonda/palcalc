@@ -37,6 +37,26 @@ namespace PalCalc.UI.ViewModel.Mapped
         }
     }
 
+    // Muted per-category chip background so stat tags are colour-coded (works on the dark theme).
+    public class StatCategoryColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var color = (StatCategory)value switch
+            {
+                StatCategory.Combat => Color.FromRgb(0x6E, 0x3B, 0x3B),
+                StatCategory.Work => Color.FromRgb(0x3B, 0x56, 0x6E),
+                StatCategory.ElementBoost => Color.FromRgb(0x6E, 0x54, 0x3B),
+                StatCategory.ElementResist => Color.FromRgb(0x3B, 0x6E, 0x68),
+                StatCategory.Status => Color.FromRgb(0x57, 0x3B, 0x6E),
+                _ => Color.FromRgb(0x45, 0x4B, 0x52),
+            };
+            return new SolidColorBrush(color);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
     public class PassiveSkillViewModel
     {
         private static readonly DerivedLocalizableText<PassiveSkill> NameLocalizer = new DerivedLocalizableText<PassiveSkill>(

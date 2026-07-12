@@ -30,6 +30,25 @@ namespace PalCalc.Model
             "ItemWeightReduction", "CraftSpeed_Product",
         };
 
+        // Friendly labels for common non-primary effects so chips read cleanly.
+        private static readonly Dictionary<string, string> FriendlyLabels = new()
+        {
+            ["FullStomatch_Decrease"] = "Hunger",
+            ["Sanity_Decrease"] = "SAN",
+            ["PalExp_Increase"] = "Pal EXP",
+            ["ItemWeightReduction"] = "Item Weight",
+            ["MaxInventoryWeight"] = "Weight",
+            ["CollectItemDrop"] = "Gather Drop",
+            ["GainItemDrop"] = "Item Drop",
+            ["EquipmentDurabilityRate"] = "Durability",
+            ["BodyPartsWeakDamage"] = "Weak-point Dmg",
+            ["DamageRateByEquippedWeapon"] = "Weapon Dmg",
+        };
+
+        // Turn a raw effect name into something readable: known effect -> friendly, else split on "_".
+        private static string Prettify(string name) =>
+            FriendlyLabels.TryGetValue(name, out var friendly) ? friendly : name.Replace('_', ' ');
+
         public static (string Label, StatCategory Category, bool IsPrimaryColumn) Describe(string effectInternalName)
         {
             var name = effectInternalName ?? "";
@@ -44,13 +63,13 @@ namespace PalCalc.Model
                 return ($"{name.Substring("ElementResist_".Length)} Resist", StatCategory.ElementResist, false);
 
             if (WorkSuitabilities.Contains(name))
-                return (name, StatCategory.Work, false);
+                return (Prettify(name), StatCategory.Work, false);
 
             if (name.Contains("AdditionalEffect") || name.StartsWith("Sanity") || name.StartsWith("FullStomatch")
                 || name.StartsWith("Fishing") || name.StartsWith("PalExp"))
-                return (name, StatCategory.Status, false);
+                return (Prettify(name), StatCategory.Status, false);
 
-            return (name, StatCategory.Other, false);
+            return (Prettify(name), StatCategory.Other, false);
         }
     }
 }
