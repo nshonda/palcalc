@@ -117,11 +117,42 @@ namespace PalCalc.UI.ViewModel.Mapped
             Name = name;
             Description = description;
 
+            var effects = passive.Effects ?? new List<PassiveSkillEffect>();
+            StatBreakdown = effects
+                .Select(e =>
+                {
+                    var (label, category, _) = PassiveStatTaxonomy.Describe(e.InternalName);
+                    return new PassiveStatViewModel(label, e.EffectStrength, category);
+                })
+                .ToList();
+
+            // primary matrix columns — the pal's own-stat value (self-target effects only)
+            static bool IsSelf(string t) => t == null || t.Contains("Self");
+            float? PrimaryValue(string internalName) => effects
+                .Where(e => e.InternalName == internalName && IsSelf(e.TargetType))
+                .Select(e => (float?)e.EffectStrength)
+                .FirstOrDefault();
+
+            AttackValue = PrimaryValue("ShotAttack");
+            DefenseValue = PrimaryValue("Defense");
+            WorkSpeedValue = PrimaryValue("CraftSpeed");
+            MoveSpeedValue = PrimaryValue("MoveSpeed");
+            WeightValue = PrimaryValue("MaxInventoryWeight");
+
             if (passive is RandomPassiveSkill) hash = random.Next();
             else hash = passive.GetHashCode();
         }
 
         public PassiveSkill ModelObject { get; }
+
+        // Full per-stat effect breakdown (all effects), and the primary-column values (nullable = no effect
+        // on that stat) for the stat matrix.
+        public IReadOnlyList<PassiveStatViewModel> StatBreakdown { get; }
+        public float? AttackValue { get; }
+        public float? DefenseValue { get; }
+        public float? WorkSpeedValue { get; }
+        public float? MoveSpeedValue { get; }
+        public float? WeightValue { get; }
 
         public ImageSource RankIcon => PassiveSkillIcon.Images[ModelObject.Rank];
 
