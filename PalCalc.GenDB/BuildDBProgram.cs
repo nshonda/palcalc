@@ -313,6 +313,12 @@ namespace PalCalc.GenDB
                     RandomInheritanceAllowed = rawPassive.AddPal,
                     RandomInheritanceWeight = rawPassive.LotteryWeight,
                     TrackedEffects = trackedEffects,
+                    // Full structured per-stat effects for display (all non-empty slots), independent of the
+                    // narrow solver-tracked subset above.
+                    Effects = effects
+                        .Where(t => t.Item1 != "no")
+                        .Select(t => new PassiveSkillEffect() { InternalName = t.Item1, TargetType = t.Item2, EffectStrength = t.Item3 })
+                        .ToList(),
                     IsStandardPassiveSkill = rawPassive.IsStandardPassiveSkill,
                     SurgeryCost = surgeryData?.Price ?? 0,
                     // ("no required item" is indicated as a value of "None", but handle nullability just in case that changes)
