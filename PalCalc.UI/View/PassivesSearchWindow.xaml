@@ -14,13 +14,14 @@
                              IconVisibility="Collapsed"
                              DataContext="{Binding RelativeSource={RelativeSource Self}}"
                              Title="{itl:LocalizedText Code=LC_TRAITS_SEARCH_TITLE}"
-                             Height="450" Width="800"
+                             Height="450" Width="1060"
                              >
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}" />
     </Window.Style>
     <Window.Resources>
         <mvm:RankColorConverter x:Key="RCC" />
+        <mvm:StatCategoryColorConverter x:Key="SCC" />
         <Style TargetType="ScrollBar" BasedOn="{StaticResource {x:Type ScrollBar}}">
             <Setter Property="adonisExtensions:ScrollBarExtension.ExpansionMode" Value="AlwaysExpand" />
         </Style>
@@ -28,7 +29,12 @@
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="10,10">
             <TextBlock DockPanel.Dock="Left" Text="{itl:LocalizedText Code=LC_TRAITS_SEARCH_SEARCH}" Margin="0,0,8,0" VerticalAlignment="Center" />
-            
+
+            <ComboBox DockPanel.Dock="Right" Width="220" Margin="8,0,0,0"
+                      ItemsSource="{Binding StatFilterOptions}"
+                      SelectedItem="{Binding SelectedStatFilter}"
+                      DisplayMemberPath="DisplayLabel" />
+
             <TextBox x:Name="m_TextBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
         </DockPanel>
 
@@ -72,8 +78,36 @@
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
 
+                        <GridViewColumn Header="Atk"  util:GridViewSort.PropertyName="AttackValue"    DisplayMemberBinding="{Binding AttackValue}"    Width="44" />
+                        <GridViewColumn Header="Elem" util:GridViewSort.PropertyName="ElementValue"   DisplayMemberBinding="{Binding ElementDisplay}" Width="70" />
+                        <GridViewColumn Header="Def"  util:GridViewSort.PropertyName="DefenseValue"   DisplayMemberBinding="{Binding DefenseValue}"   Width="44" />
+                        <GridViewColumn Header="Work" util:GridViewSort.PropertyName="WorkSpeedValue" DisplayMemberBinding="{Binding WorkSpeedValue}" Width="48" />
+                        <GridViewColumn Header="Spd"  util:GridViewSort.PropertyName="MoveSpeedValue" DisplayMemberBinding="{Binding MoveSpeedValue}" Width="44" />
+
+                        <GridViewColumn Header="Stats" Width="300">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type mvm:PassiveSkillViewModel}">
+                                    <ItemsControl ItemsSource="{Binding StatBreakdown}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type mvm:PassiveStatViewModel}">
+                                                <Border CornerRadius="3" Padding="4,1" Margin="0,1,3,1"
+                                                        Background="{Binding Category, Converter={StaticResource SCC}}">
+                                                    <TextBlock Text="{Binding}" FontSize="11" Foreground="#E6EEF2" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
                         <GridViewColumn Header="{itl:LocalizedText Code=LC_TRAITS_SEARCH_DESCRIPTION}"
-                                        Width="500"
+                                        Width="230"
                                         util:GridViewSort.PropertyName="Description"
                                         >
                             <GridViewColumn.CellTemplate>

@@ -37,6 +37,34 @@ namespace PalCalc.UI.ViewModel.Mapped
         }
     }
 
+    // Muted per-category chip background so stat tags are colour-coded (works on the dark theme).
+    // Brushes are cached + frozen (6-value enum domain, bound from every chip in a virtualized list).
+    public class StatCategoryColorConverter : IValueConverter
+    {
+        private static readonly Dictionary<StatCategory, SolidColorBrush> brushes = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var category = (StatCategory)value;
+            if (brushes.TryGetValue(category, out var cached)) return cached;
+
+            var color = category switch
+            {
+                StatCategory.Combat => Color.FromRgb(0x6E, 0x3B, 0x3B),
+                StatCategory.Work => Color.FromRgb(0x3B, 0x56, 0x6E),
+                StatCategory.ElementBoost => Color.FromRgb(0x6E, 0x54, 0x3B),
+                StatCategory.ElementResist => Color.FromRgb(0x3B, 0x6E, 0x68),
+                StatCategory.Status => Color.FromRgb(0x57, 0x3B, 0x6E),
+                _ => Color.FromRgb(0x45, 0x4B, 0x52),
+            };
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brushes[category] = brush;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
     public class PassiveSkillViewModel
     {
         private static readonly DerivedLocalizableText<PassiveSkill> NameLocalizer = new DerivedLocalizableText<PassiveSkill>(
@@ -117,13 +145,46 @@ namespace PalCalc.UI.ViewModel.Mapped
             Name = name;
             Description = description;
 
+            var effects = passive.Effects ?? new List<PassiveSkillEffect>();
+            StatBreakdown = effects
+                .Select(e =>
+                {
+                    var (label, category) = PassiveStatTaxonomy.Describe(e.InternalName);
+                    return new PassiveStatViewModel(label, e.EffectStrength, category);
+                })
+                .ToList();
+
+            // primary matrix columns + element damage — the pal's own-stat values (self-target only).
+            // Selection logic lives in PalCalc.Model (PassiveStatSelection) so it's unit-tested.
+            AttackValue = PassiveStatSelection.SelfValue(effects, "ShotAttack");
+            DefenseValue = PassiveStatSelection.SelfValue(effects, "Defense");
+            WorkSpeedValue = PassiveStatSelection.SelfValue(effects, "CraftSpeed");
+            MoveSpeedValue = PassiveStatSelection.SelfValue(effects, "MoveSpeed");
+            (ElementValue, ElementDisplay) = PassiveStatSelection.ElementDamage(effects);
+
             if (passive is RandomPassiveSkill) hash = random.Next();
             else hash = passive.GetHashCode();
         }
 
         public PassiveSkill ModelObject { get; }
 
-        public ImageSource RankIcon => PassiveSkillIcon.Images[ModelObject.Rank];
+        // Full per-stat effect breakdown (all effects), and the primary-column values (nullable = no effect
+        // on that stat) for the stat matrix.
+        public IReadOnlyList<PassiveStatViewModel> StatBreakdown { get; }
+        public float? AttackValue { get; }
+        public float? DefenseValue { get; }
+        public float? WorkSpeedValue { get; }
+        public float? MoveSpeedValue { get; }
+
+        // element damage: sortable numeric value + a "{Element} +N" label for display
+        public float? ElementValue { get; }
+        public string ElementDisplay { get; }
+
+        // World Tree passives (1.0) use Rank 5, which has no dedicated icon — clamp to the nearest known
+        // rank so they still get a badge instead of rendering blank.
+        public ImageSource RankIcon => PassiveSkillIcon.Images.TryGetValue(ModelObject.Rank, out var img)
+            ? img
+            : PassiveSkillIcon.Images[Math.Clamp(ModelObject.Rank, -3, 4)];
 
         public int Rank => ModelObject.Rank;
 
