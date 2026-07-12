@@ -9,6 +9,7 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<CETCompat>false</CETCompat> <!-- https://github.com/tylercamp/palcalc/issues/85 -->
 	<ApplicationManifest>app.manifest</ApplicationManifest>
+	<ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
 	<Configurations>Debug;Release;Release_NoBundle</Configurations>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 	<NoWarn>9107</NoWarn>
