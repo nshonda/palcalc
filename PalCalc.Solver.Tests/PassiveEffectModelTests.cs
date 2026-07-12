@@ -16,15 +16,15 @@ namespace PalCalc.Solver.Tests
             {
                 Effects = new List<PassiveSkillEffect>
                 {
-                    new() { InternalName = "ShotAttack", TargetType = "self", EffectStrength = 20 },
-                    new() { InternalName = "Defense",    TargetType = "self", EffectStrength = 20 },
-                    new() { InternalName = "MoveSpeed",  TargetType = "self", EffectStrength = 20 },
+                    new() { InternalName = "ShotAttack", TargetType = "ToSelf", EffectStrength = 20 },
+                    new() { InternalName = "Defense",    TargetType = "ToSelf", EffectStrength = 20 },
+                    new() { InternalName = "MoveSpeed",  TargetType = "ToSelf", EffectStrength = 20 },
                 },
             };
 
             Assert.AreEqual(3, passive.Effects.Count);
             var atk = passive.Effects.Single(e => e.InternalName == "ShotAttack");
-            Assert.AreEqual("self", atk.TargetType);
+            Assert.AreEqual("ToSelf", atk.TargetType);
             Assert.AreEqual(20f, atk.EffectStrength);
         }
     }

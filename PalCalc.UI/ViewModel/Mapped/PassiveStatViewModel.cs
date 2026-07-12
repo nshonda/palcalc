@@ -17,6 +17,11 @@ namespace PalCalc.UI.ViewModel.Mapped
             Category = category;
         }
 
-        public override string ToString() => $"{Label} {(Value >= 0 ? "+" : "")}{Value:0.#}%";
+        public override string ToString()
+        {
+            // "Other" effects are typically flags/immunities where a "%" is meaningless — show just the label.
+            if (Category == StatCategory.Other) return Label;
+            return $"{Label} {(Value >= 0 ? "+" : "")}{Value:0.#}%";
+        }
     }
 }

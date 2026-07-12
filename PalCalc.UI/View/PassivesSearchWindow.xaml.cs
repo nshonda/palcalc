@@ -40,12 +40,12 @@ namespace PalCalc.UI.View
         private static List<StatFilterOption> BuildStatFilterOptions()
         {
             var opts = PassiveSkillViewModel.All
-                .SelectMany(p => p.ModelObject.Effects)
+                .SelectMany(p => p.ModelObject.Effects ?? Enumerable.Empty<PassiveSkillEffect>())
                 .Select(e => e.InternalName)
                 .Distinct()
                 .Select(n =>
                 {
-                    var (label, category, _) = PassiveStatTaxonomy.Describe(n);
+                    var (label, category) = PassiveStatTaxonomy.Describe(n);
                     return new StatFilterOption(n, label, category);
                 })
                 .OrderBy(o => o.Category)
@@ -58,27 +58,28 @@ namespace PalCalc.UI.View
 
         private bool Matches(string text) => text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || Fuzz.WeightedRatio(SearchText.ToLower(), text.ToLower()) > 70;
 
-        // A stable view over all passives — GridViewSort applies SortDescriptions to this view, so a
-        // column sort persists (unlike a recomputed list). Search + stat filter run through its predicate.
-        public ICollectionView DisplayedOptions { get; }
-
-        public PassivesSearchWindow()
-        {
-            // Build the view BEFORE InitializeComponent: the window's DataContext=self binding resolves the
-            // ItemsSource during InitializeComponent, so DisplayedOptions must already be set (it has no
-            // change notification).
-            DisplayedOptions = new ListCollectionView((System.Collections.IList)PassiveSkillViewModel.All)
+        // A stable view over all passives — GridViewSort applies SortDescriptions to this view, so a column
+        // sort persists (unlike a recomputed list). Search + stat filter run through its predicate. Built
+        // lazily on first bind so there's no dependency on ctor statement order relative to InitializeComponent.
+        private ICollectionView displayedOptions;
+        public ICollectionView DisplayedOptions => displayedOptions ??=
+            new ListCollectionView((System.Collections.IList)PassiveSkillViewModel.All)
             {
                 Filter = o =>
                 {
                     var p = (PassiveSkillViewModel)o;
                     var textMatches = string.IsNullOrEmpty(SearchText) || Matches(p.Name.Value) || Matches(p.Description.Value);
-                    var statMatches = SelectedStatFilter?.InternalName == null || p.ModelObject.Effects.Any(e => e.InternalName == SelectedStatFilter.InternalName);
+                    var statMatches = SelectedStatFilter?.InternalName == null
+                        || (p.ModelObject.Effects?.Any(e => e.InternalName == SelectedStatFilter.InternalName) ?? false);
                     return textMatches && statMatches;
                 }
             };
 
+        public PassivesSearchWindow()
+        {
             InitializeComponent();
+
+            SelectedStatFilter = StatFilterOptions[0]; // default to the "All stats" entry so the combo isn't blank
 
             Loaded += (_, _) => m_TextBox.Focus();
         }

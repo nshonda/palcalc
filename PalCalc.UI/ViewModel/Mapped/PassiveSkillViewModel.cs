@@ -38,11 +38,17 @@ namespace PalCalc.UI.ViewModel.Mapped
     }
 
     // Muted per-category chip background so stat tags are colour-coded (works on the dark theme).
+    // Brushes are cached + frozen (6-value enum domain, bound from every chip in a virtualized list).
     public class StatCategoryColorConverter : IValueConverter
     {
+        private static readonly Dictionary<StatCategory, SolidColorBrush> brushes = new();
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var color = (StatCategory)value switch
+            var category = (StatCategory)value;
+            if (brushes.TryGetValue(category, out var cached)) return cached;
+
+            var color = category switch
             {
                 StatCategory.Combat => Color.FromRgb(0x6E, 0x3B, 0x3B),
                 StatCategory.Work => Color.FromRgb(0x3B, 0x56, 0x6E),
@@ -51,7 +57,9 @@ namespace PalCalc.UI.ViewModel.Mapped
                 StatCategory.Status => Color.FromRgb(0x57, 0x3B, 0x6E),
                 _ => Color.FromRgb(0x45, 0x4B, 0x52),
             };
-            return new SolidColorBrush(color);
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brushes[category] = brush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
@@ -141,31 +149,18 @@ namespace PalCalc.UI.ViewModel.Mapped
             StatBreakdown = effects
                 .Select(e =>
                 {
-                    var (label, category, _) = PassiveStatTaxonomy.Describe(e.InternalName);
+                    var (label, category) = PassiveStatTaxonomy.Describe(e.InternalName);
                     return new PassiveStatViewModel(label, e.EffectStrength, category);
                 })
                 .ToList();
 
-            // primary matrix columns — the pal's own-stat value (self-target effects only)
-            static bool IsSelf(string t) => t == null || t.Contains("Self");
-            float? PrimaryValue(string internalName) => effects
-                .Where(e => e.InternalName == internalName && IsSelf(e.TargetType))
-                .Select(e => (float?)e.EffectStrength)
-                .FirstOrDefault();
-
-            AttackValue = PrimaryValue("ShotAttack");
-            DefenseValue = PrimaryValue("Defense");
-            WorkSpeedValue = PrimaryValue("CraftSpeed");
-            MoveSpeedValue = PrimaryValue("MoveSpeed");
-            WeightValue = PrimaryValue("MaxInventoryWeight");
-
-            // offensive element damage (ElementBoost_*) — its own column, since it's an "attack" of a
-            // specific element that the raw Attack column doesn't capture.
-            var elementEffect = effects.FirstOrDefault(e => e.InternalName != null && e.InternalName.StartsWith("ElementBoost_") && IsSelf(e.TargetType));
-            ElementValue = elementEffect?.EffectStrength;
-            ElementDisplay = elementEffect == null
-                ? null
-                : $"{elementEffect.InternalName.Substring("ElementBoost_".Length)} {(elementEffect.EffectStrength >= 0 ? "+" : "")}{elementEffect.EffectStrength:0.#}";
+            // primary matrix columns + element damage — the pal's own-stat values (self-target only).
+            // Selection logic lives in PalCalc.Model (PassiveStatSelection) so it's unit-tested.
+            AttackValue = PassiveStatSelection.SelfValue(effects, "ShotAttack");
+            DefenseValue = PassiveStatSelection.SelfValue(effects, "Defense");
+            WorkSpeedValue = PassiveStatSelection.SelfValue(effects, "CraftSpeed");
+            MoveSpeedValue = PassiveStatSelection.SelfValue(effects, "MoveSpeed");
+            (ElementValue, ElementDisplay) = PassiveStatSelection.ElementDamage(effects);
 
             if (passive is RandomPassiveSkill) hash = random.Next();
             else hash = passive.GetHashCode();
@@ -180,7 +175,6 @@ namespace PalCalc.UI.ViewModel.Mapped
         public float? DefenseValue { get; }
         public float? WorkSpeedValue { get; }
         public float? MoveSpeedValue { get; }
-        public float? WeightValue { get; }
 
         // element damage: sortable numeric value + a "{Element} +N" label for display
         public float? ElementValue { get; }

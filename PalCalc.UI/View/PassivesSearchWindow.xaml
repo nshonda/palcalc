@@ -83,7 +83,6 @@
                         <GridViewColumn Header="Def"  util:GridViewSort.PropertyName="DefenseValue"   DisplayMemberBinding="{Binding DefenseValue}"   Width="44" />
                         <GridViewColumn Header="Work" util:GridViewSort.PropertyName="WorkSpeedValue" DisplayMemberBinding="{Binding WorkSpeedValue}" Width="48" />
                         <GridViewColumn Header="Spd"  util:GridViewSort.PropertyName="MoveSpeedValue" DisplayMemberBinding="{Binding MoveSpeedValue}" Width="44" />
-                        <GridViewColumn Header="Wt"   util:GridViewSort.PropertyName="WeightValue"    DisplayMemberBinding="{Binding WeightValue}"    Width="44" />
 
                         <GridViewColumn Header="Stats" Width="300">
                             <GridViewColumn.CellTemplate>
