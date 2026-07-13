@@ -123,5 +123,21 @@ namespace PalCalc.Solver.Probabilities
 
             return result;
         }
+
+        /// <summary>
+        /// Applies an IV-bonus cake (Mushroom / Deluxe Vegetable, +1..5) to a bred child's IV.
+        /// Floor is the guaranteed minimum bonus, ceil the maximum; both clamped to the game max of 100.
+        /// A random (untargeted) IV or a zero floor is a no-op.
+        /// </summary>
+        public static IV_Value ApplyCakeBonus(IV_Value iv, int floor, int ceil)
+        {
+            if (floor == 0 || iv == IV_Value.Random) return iv;
+
+            return new IV_Value(
+                IsRelevant: iv.IsRelevant,
+                Min: Math.Min(100, iv.Min + floor),
+                Max: Math.Min(100, iv.Max + ceil)
+            );
+        }
     }
 }
