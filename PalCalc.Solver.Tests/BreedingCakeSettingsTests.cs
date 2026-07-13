@@ -14,5 +14,22 @@ namespace PalCalc.Solver.Tests
             Assert.AreEqual(2, new GameSettings { ActiveCake = BreedingCake.VegetableCake }.EggsPerBreeding);
             Assert.AreEqual(1, new GameSettings { ActiveCake = BreedingCake.SpecialCake }.EggsPerBreeding);
         }
+
+        [TestMethod]
+        public void IvBonus_DerivesFromActiveCake()
+        {
+            Assert.AreEqual(0, new GameSettings { ActiveCake = BreedingCake.None }.IvBonusFloor);
+            Assert.AreEqual(0, new GameSettings { ActiveCake = BreedingCake.None }.IvBonusCeil);
+
+            Assert.AreEqual(1, new GameSettings { ActiveCake = BreedingCake.MushroomCake }.IvBonusFloor);
+            Assert.AreEqual(5, new GameSettings { ActiveCake = BreedingCake.MushroomCake }.IvBonusCeil);
+
+            Assert.AreEqual(1, new GameSettings { ActiveCake = BreedingCake.DeluxeVegetableCake }.IvBonusFloor);
+            Assert.AreEqual(5, new GameSettings { ActiveCake = BreedingCake.DeluxeVegetableCake }.IvBonusCeil);
+
+            // passive/egg cakes give no IV bonus
+            Assert.AreEqual(0, new GameSettings { ActiveCake = BreedingCake.VegetableCake }.IvBonusFloor);
+            Assert.AreEqual(0, new GameSettings { ActiveCake = BreedingCake.SpecialCake }.IvBonusFloor);
+        }
     }
 }

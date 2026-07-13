@@ -382,10 +382,12 @@ namespace PalCalc.Solver
                     // Must happen while going through the gendered pals - a composite pal with a specific gender
                     // will resolve to a specific pal with an exact set of IVs rather than a range like the original
                     // composite.
+                    var ivFloor = settings.GameSettings.IvBonusFloor;
+                    var ivCeil = settings.GameSettings.IvBonusCeil;
                     var finalIVs = new IV_Set(
-                        HP: MergeIVs(parent1.IVs.HP, parent2.IVs.HP),
-                        Attack: MergeIVs(parent1.IVs.Attack, parent2.IVs.Attack),
-                        Defense: MergeIVs(parent1.IVs.Defense, parent2.IVs.Defense)
+                        HP: Probabilities.IVs.ApplyCakeBonus(MergeIVs(parent1.IVs.HP, parent2.IVs.HP), ivFloor, ivCeil),
+                        Attack: Probabilities.IVs.ApplyCakeBonus(MergeIVs(parent1.IVs.Attack, parent2.IVs.Attack), ivFloor, ivCeil),
+                        Defense: Probabilities.IVs.ApplyCakeBonus(MergeIVs(parent1.IVs.Defense, parent2.IVs.Defense), ivFloor, ivCeil)
                     );
 
                     // Note: We need to use `ActualPassives` for inheritance calc, NOT `EffectivePassives`. If we have:

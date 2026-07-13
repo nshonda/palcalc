@@ -857,6 +857,10 @@ namespace PalCalc.UI.Localization {
         /// </summary>
         LC_SETTINGS_MASSIVE_EGG_INCUBATION_DESC,
         /// <summary>
+        ///   Looks up a localized string similar to Breeding Cake.
+        /// </summary>
+        LC_SETTINGS_BREEDING_CAKE,
+        /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
         LC_SETTINGS_PALBOX_TAB_SIZE,

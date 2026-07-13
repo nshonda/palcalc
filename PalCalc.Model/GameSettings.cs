@@ -38,6 +38,17 @@ namespace PalCalc.Model
         [JsonIgnore]
         public int EggsPerBreeding => ActiveCake == BreedingCake.VegetableCake ? 2 : 1;
 
+        // Mushroom Cake (Cake02) and Deluxe Vegetable Cake (Cake04) add +1..5 IV to the bred
+        // offspring. Floor is the guaranteed minimum bonus, Ceil the maximum. Datamined from
+        // DA_BreedingItemEffectData. Other cakes give no IV bonus.
+        [JsonIgnore]
+        public int IvBonusFloor =>
+            ActiveCake is BreedingCake.MushroomCake or BreedingCake.DeluxeVegetableCake ? 1 : 0;
+
+        [JsonIgnore]
+        public int IvBonusCeil =>
+            ActiveCake is BreedingCake.MushroomCake or BreedingCake.DeluxeVegetableCake ? 5 : 0;
+
         public int PlayerPartySize { get; set; } = 5;
 
         public Dictionary<LocationType, int> LocationTypeGridWidths { get; set; } = new()

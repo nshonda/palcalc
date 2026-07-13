@@ -29,6 +29,7 @@ namespace PalCalc.UI.ViewModel.Mapped
             BreedingTimeSeconds = (int)modelObject.BreedingTime.TotalSeconds;
             MassiveEggIncubationTimeMinutes = (int)modelObject.MassiveEggIncubationTime.TotalMinutes;
             MultipleBreedingFarms = modelObject.MultipleBreedingFarms;
+            ActiveCake = modelObject.ActiveCake;
             PalboxTabWidth = modelObject.LocationTypeGridWidths[LocationType.Palbox];
             PalboxTabHeight = modelObject.LocationTypeGridHeights[LocationType.Palbox].Value;
 
@@ -41,6 +42,7 @@ namespace PalCalc.UI.ViewModel.Mapped
             BreedingTime = TimeSpan.FromSeconds(BreedingTimeSeconds),
             MassiveEggIncubationTime = TimeSpan.FromMinutes(MassiveEggIncubationTimeMinutes),
             MultipleBreedingFarms = MultipleBreedingFarms,
+            ActiveCake = ActiveCake,
             LocationTypeGridWidths = new()
             {
                 { LocationType.Palbox, PalboxTabWidth },
@@ -73,6 +75,16 @@ namespace PalCalc.UI.ViewModel.Mapped
 
         [ObservableProperty]
         private bool multipleBreedingFarms;
+
+        // The breeding cake placed in the farm (Palworld 1.0). Drives the solver's cake effects:
+        // Special = deterministic 4-passive inheritance; Vegetable = 2 eggs/cycle; Mushroom /
+        // Deluxe Vegetable = +1..5 IV on the offspring.
+        [ObservableProperty]
+        private BreedingCake activeCake;
+
+        // Options source for the cake selector combo box.
+        [JsonIgnore]
+        public IReadOnlyList<BreedingCake> CakeOptions { get; } = Enum.GetValues<BreedingCake>();
 
         private int palboxTabWidth;
         public int PalboxTabWidth
