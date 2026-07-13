@@ -139,5 +139,26 @@ namespace PalCalc.Solver.Probabilities
                 Max: Math.Min(100, iv.Max + ceil)
             );
         }
+
+        /// <summary>
+        /// Target-aware IV-bonus cake application (Palworld 1.0). Like <see cref="ApplyCakeBonus"/>, but when
+        /// the merged (pre-bonus) worst-case IV is within the max bonus (`ceil`) of the target, the IV is
+        /// treated as reaching the target and the returned probability is P(bonus roll >= gap) for a single
+        /// uniform roll in [1..ceil]. gap==1 is the guaranteed floor (probability 1). No cake / untargeted /
+        /// already-satisfied / too-far cases return the plain <see cref="ApplyCakeBonus"/> result with probability 1.
+        /// </summary>
+        public static (IV_Value iv, float reachProbability) ApplyCakeBonusToTarget(IV_Value merged, int target, int floor, int ceil)
+        {
+            if (floor == 0 || merged == IV_Value.Random || target == 0)
+                return (ApplyCakeBonus(merged, floor, ceil), 1.0f);
+
+            int gap = target - merged.Min; // worst-case shortfall the single +1..ceil roll must cover
+
+            if (gap <= 0 || gap > ceil)
+                return (ApplyCakeBonus(merged, floor, ceil), 1.0f);
+
+            float p = (ceil - gap + 1) / (float)ceil; // P(uniform roll in [1..ceil] >= gap)
+            return (new IV_Value(merged.IsRelevant, target, Math.Min(100, merged.Max + ceil)), p);
+        }
     }
 }

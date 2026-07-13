@@ -65,9 +65,13 @@ namespace PalCalc.Solver
             var allExceptGenderGroupFn = PalProperty.Combine(PalProperty.Pal, PalProperty.RelevantPassives, PalProperty.IvRelevance);
 
             bool WithinBreedingSteps(Pal pal, int maxSteps) => breedingdb.MinBreedingSteps[pal][spec.Pal] <= maxSteps;
-            static IV_Value MakeIV(int minValue, int value) =>
+            // Under an IV-bonus cake, a pal within `ivBonusCeil` of the target can still reach it, so it must
+            // count as relevant (else its inheritance probability is dropped). With no cake (ceil 0) this is
+            // exactly the original `value >= minValue`.
+            var ivBonusCeil = settings.GameSettings.IvBonusCeil;
+            IV_Value MakeIV(int minValue, int value) =>
                 new(
-                    IsRelevant: minValue != 0 && value >= minValue,
+                    IsRelevant: minValue != 0 && value >= minValue - ivBonusCeil,
                     Min: value,
                     Max: value
                 );

@@ -384,11 +384,11 @@ namespace PalCalc.Solver
                     // composite.
                     var ivFloor = settings.GameSettings.IvBonusFloor;
                     var ivCeil = settings.GameSettings.IvBonusCeil;
-                    var finalIVs = new IV_Set(
-                        HP: Probabilities.IVs.ApplyCakeBonus(MergeIVs(parent1.IVs.HP, parent2.IVs.HP), ivFloor, ivCeil),
-                        Attack: Probabilities.IVs.ApplyCakeBonus(MergeIVs(parent1.IVs.Attack, parent2.IVs.Attack), ivFloor, ivCeil),
-                        Defense: Probabilities.IVs.ApplyCakeBonus(MergeIVs(parent1.IVs.Defense, parent2.IVs.Defense), ivFloor, ivCeil)
-                    );
+                    var (hpIV, hpReach) = Probabilities.IVs.ApplyCakeBonusToTarget(MergeIVs(parent1.IVs.HP, parent2.IVs.HP), state.Spec.IV_HP, ivFloor, ivCeil);
+                    var (attackIV, attackReach) = Probabilities.IVs.ApplyCakeBonusToTarget(MergeIVs(parent1.IVs.Attack, parent2.IVs.Attack), state.Spec.IV_Attack, ivFloor, ivCeil);
+                    var (defenseIV, defenseReach) = Probabilities.IVs.ApplyCakeBonusToTarget(MergeIVs(parent1.IVs.Defense, parent2.IVs.Defense), state.Spec.IV_Defense, ivFloor, ivCeil);
+                    var finalIVs = new IV_Set(hpIV, attackIV, defenseIV);
+                    var finalIvsProbability = ivsProbability * hpReach * attackReach * defenseReach;
 
                     // Note: We need to use `ActualPassives` for inheritance calc, NOT `EffectivePassives`. If we have:
                     //
@@ -459,7 +459,7 @@ namespace PalCalc.Solver
                                 newPassives,
                                 probabilityForUpToNumPassives,
                                 finalIVs,
-                                ivsProbability
+                                finalIvsProbability
                             );
 
                             var workingOptimalResults = state.WorkingOptimalTimesByPalId[res.Pal.Id];
