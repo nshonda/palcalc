@@ -32,6 +32,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="8" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Label Grid.Row="0" Content="{itl:LocalizedText LC_BREEDING_TIME}" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -93,6 +95,20 @@
                     ToolTipService.ShowOnDisabled="True"
                 />
             </StackPanel>
+
+            <!-- TODO(localize): replace the hardcoded Content with an LC_ key (e.g. LC_SETTINGS_BREEDING_CAKE) to match convention. -->
+            <Label Grid.Row="8" Grid.Column="0" Content="Breeding cake" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox
+                Grid.Row="8"
+                Grid.Column="2"
+                ToolTipService.ToolTip="Cake in the breeding farm. Special = guaranteed 4 passives; Vegetable = 2 eggs/cycle; Mushroom / Deluxe Vegetable = +1..5 IV on the offspring."
+                ToolTipService.ShowOnDisabled="True"
+                ItemsSource="{Binding CakeOptions}"
+                SelectedItem="{Binding ActiveCake}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                MinWidth="160"
+            />
         </Grid>
 
         <Label Visibility="{Binding AppRestartRequired, Converter={StaticResource VVC}}">
