@@ -720,6 +720,23 @@ namespace PalCalc.GenDB
 
             logger.Information("Found language codes: {codes}", localizations.Select(l => l.LanguageCode));
 
+            // Optional side-channel dump of the raw UI common-text table for one language, used by
+            // downstream tooling that needs strings db.json does not carry (work-suitability labels,
+            // UI nouns). Off unless PALCALC_DUMP_COMMON_TEXT names an output path.
+            var commonTextDumpPath = Environment.GetEnvironmentVariable("PALCALC_DUMP_COMMON_TEXT");
+            if (commonTextDumpPath != null)
+            {
+                var dumpLang = Environment.GetEnvironmentVariable("PALCALC_DUMP_COMMON_TEXT_LANG") ?? "en";
+                var dumpSrc = localizations.FirstOrDefault(l => l.LanguageCode == dumpLang);
+                if (dumpSrc == null)
+                    logger.Warning("Language {lang} not present; skipping common-text dump", dumpLang);
+                else
+                {
+                    File.WriteAllText(commonTextDumpPath, JsonConvert.SerializeObject(dumpSrc.ReadCommonText(provider), Formatting.Indented));
+                    logger.Information("Wrote {lang} common text to {path}", dumpLang, commonTextDumpPath);
+                }
+            }
+
             var rawPals = PalReader.ReadPals(provider);
             var wildPalLevels = PalSpawnerReader.ReadWildLevelRanges(provider);
 
