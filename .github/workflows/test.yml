@@ -1,0 +1,32 @@
+# Runs the MSTest suite in PalCalc.Solver.Tests (solver/model unit + integration tests).
+# Callable directly (PR / push to main) and reusable via workflow_call so
+# publish-on-release.yml can gate its publish job on the same run.
+#
+# PalCalc.Solver.Tests targets plain net9.0 (no WPF), so ubuntu-latest is sufficient here —
+# only the PalCalc.UI publish job needs windows-latest.
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+jobs:
+  dotnet-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore PalCalc.Solver.Tests/PalCalc.Solver.Tests.csproj
+
+      - name: Run tests
+        run: dotnet test PalCalc.Solver.Tests/PalCalc.Solver.Tests.csproj --configuration Release --no-restore --logger "console;verbosity=normal"
